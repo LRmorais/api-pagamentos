@@ -4,5 +4,8 @@ import com.fadesppagamentos.enumeration.DocumentEnum;
 import com.fadesppagamentos.enumeration.PaymentMethodEnum;
 import com.fadesppagamentos.enumeration.PaymentStatusEnum;
 
-public record PaymentDto(String Code, DocumentEnum documentType, String Document, PaymentMethodEnum paymantMethod, String amount, PaymentStatusEnum paymentStatus) {
+import java.math.BigDecimal;
+
+public record PaymentDto(Long id, String code, DocumentEnum documentType, String document, PaymentMethodEnum paymentMethod, BigDecimal amount, PaymentStatusEnum paymentStatus) {
 }
+
