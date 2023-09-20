@@ -60,7 +60,7 @@ public class PaymentController {
         return new ResponseEntity<>(paymentDtos, HttpStatus.OK);
     }
 
-    @Operation(summary = "Busca todos os pagamentos de um usuário", method = "GET")
+    @Operation(summary = "Busca pagamentos por filtros", method = "GET")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pagamentos encontrados"),
             @ApiResponse(responseCode = "404", description = "Nenhum pagamento encontrado"),
