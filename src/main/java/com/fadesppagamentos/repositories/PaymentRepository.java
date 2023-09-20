@@ -13,14 +13,7 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    // Encontre um pagamento por código de débito
     Optional<Payment> findByCode(String code);
-
-    // Encontre pagamentos por CPF/CNPJ do pagador
-    List<Payment> findByDocument(String document);
-
-    // Encontre pagamentos pendentes de processamento
-    List<Payment> findByPaymentStatus(PaymentStatusEnum paymentStatusPending);
 
     @Query("SELECT p FROM payments p " +
             "WHERE (:code IS NULL OR p.code = :code) " +
