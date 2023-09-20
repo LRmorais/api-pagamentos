@@ -30,7 +30,7 @@ public class Payment {
     private String cardNumber;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethodEnum paymantMethod;
+    private PaymentMethodEnum paymentMethod;
 
     private BigDecimal amount;
 
@@ -48,7 +48,7 @@ public class Payment {
         this.documentType = payment.getDocumentType();
         this.document = payment.getDocument();
         this.cardNumber = payment.getCardNumber();
-        this.paymantMethod = payment.getPaymantMethod();
+        this.paymentMethod = payment.getPaymentMethod();
         this.amount = payment.getAmount();
         this.paymentStatus = payment.getPaymentStatus();
     }
