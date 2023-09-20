@@ -1,65 +1,110 @@
 package com.fadesppagamentos.services;
 
 import com.fadesppagamentos.domain.payment.Payment;
+import com.fadesppagamentos.dtos.PaymentDto;
 import com.fadesppagamentos.dtos.PaymentFormDto;
 import com.fadesppagamentos.enumeration.PaymentStatusEnum;
 import com.fadesppagamentos.repositories.PaymentRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService implements IPaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-        public Payment createPayment(PaymentFormDto paymentFormDto) {
-            Payment payment = new Payment();
-            payment.setCode(paymentFormDto.code());
-            payment.setDocumentType(paymentFormDto.documentType());
-            payment.setDocument(paymentFormDto.document());
-            payment.setCardNumber(paymentFormDto.cardNumber());
-            payment.setPaymantMethod(paymentFormDto.paymentMethod());
-            payment.setAmount(paymentFormDto.amount());
-            payment.setPaymentStatus(PaymentStatusEnum.PENDENTE_PROCESSAMENTO);
+    @Autowired
+    private ModelMapper modelMapper;
 
-            return paymentRepository.save(payment);
+    public String createPayment(PaymentFormDto paymentFormDto) {
+        String code = paymentFormDto.code();
+        Optional<Payment> existingPayment = paymentRepository.findByCode(code);
+
+        if (existingPayment.isPresent()) {
+            throw new DataIntegrityViolationException("Pagamento já processado ou em processamento");
         }
 
-    public Optional<Payment> getPaymentById(Long id) {
-        return paymentRepository.findById(id);
+        Payment payment = new Payment();
+        payment.setCode(code);
+        payment.setDocumentType(paymentFormDto.documentType());
+        payment.setDocument(paymentFormDto.document());
+        payment.setCardNumber(paymentFormDto.cardNumber());
+        payment.setPaymentMethod(paymentFormDto.paymentMethod());
+        payment.setAmount(paymentFormDto.amount());
+        payment.setPaymentStatus(PaymentStatusEnum.PENDENTE_PROCESSAMENTO);
+
+        paymentRepository.save(payment);
+
+        return "Pagamento criado com sucesso!";
     }
 
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
+    public PaymentDto getPaymentById(Long id) {
+        Optional<Payment> payment = paymentRepository.findById(id);
+        return payment.map(p -> modelMapper.map(p, PaymentDto.class)).orElse(null);
+    }
+    public List<PaymentDto> getAllPayments() {
+        List<Payment> payments = paymentRepository.findAll();
+        if (payments.isEmpty()) {
+            throw new EntityNotFoundException("Nenhum pagamento encontrado");
+        }
+        return payments.stream()
+                .map(payment -> modelMapper.map(payment, PaymentDto.class))
+                .collect(Collectors.toList());
     }
 
-    public List<Payment> filterPayments(String code, String document, PaymentStatusEnum paymentStatus) {
-        return paymentRepository.findPaymentsByFilters(code, document, paymentStatus);
+    public List<PaymentDto> filterPayments(String code, String document, PaymentStatusEnum paymentStatus) {
+        List<Payment> payments = paymentRepository.findPaymentsByFilters(code, document, paymentStatus);
+        if (payments.isEmpty()) {
+            throw new EntityNotFoundException("Nenhum pagamento encontrado");
+        }
+        List<PaymentDto> paymentDtos = payments.stream()
+                .map(payment -> modelMapper.map(payment, PaymentDto.class))
+                .collect(Collectors.toList());
+
+        return paymentDtos;
     }
 
-    public void updatePaymentStatus(Long id, PaymentStatusEnum newStatus) {
+    public String updatePaymentStatus(Long id, PaymentStatusEnum newStatus) {
         Optional<Payment> paymentOptional = paymentRepository.findById(id);
         if (paymentOptional.isPresent()) {
             Payment payment = paymentOptional.get();
             if (payment.getPaymentStatus() == PaymentStatusEnum.PENDENTE_PROCESSAMENTO) {
                 payment.setPaymentStatus(newStatus);
                 paymentRepository.save(payment);
+                return "Status do pagamento atualizado com sucesso!";
+            } else if (payment.getPaymentStatus() == PaymentStatusEnum.PROCESSADO_FALHA && newStatus == PaymentStatusEnum.PENDENTE_PROCESSAMENTO) {
+                payment.setPaymentStatus(newStatus);
+                paymentRepository.save(payment);
+                return "Status do pagamento atualizado com sucesso!";
+            } else {
+                throw new DataIntegrityViolationException("Pagamento já processado com sucesso");
             }
+        } else {
+            throw new EntityNotFoundException("Pagamento não encontrado");
         }
     }
 
-    public boolean deletePayment(Long id) {
+
+    public String deletePayment(Long id) {
         Optional<Payment> paymentOptional = paymentRepository.findById(id);
-        if (paymentOptional.isPresent()) {
-            Payment payment = paymentOptional.get();
-            if (payment.getPaymentStatus() == PaymentStatusEnum.PENDENTE_PROCESSAMENTO) {
-                paymentRepository.delete(payment);
-                return true;
-            }
+        if (paymentOptional.isEmpty()) {
+            throw new EntityNotFoundException("Pagamento não encontrado");
         }
-        return false;
+
+        Payment payment = paymentOptional.get();
+        if (payment.getPaymentStatus() != PaymentStatusEnum.PENDENTE_PROCESSAMENTO) {
+            throw new DataIntegrityViolationException("Pagamento já foi processado");
+        }
+
+        paymentRepository.delete(payment);
+
+        return "Pagamento deletado com sucesso!";
     }
 
 }
