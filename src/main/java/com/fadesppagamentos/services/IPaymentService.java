@@ -1,23 +1,23 @@
 package com.fadesppagamentos.services;
 
-import com.fadesppagamentos.domain.payment.Payment;
+import com.fadesppagamentos.dtos.PaymentDto;
 import com.fadesppagamentos.dtos.PaymentFormDto;
 import com.fadesppagamentos.enumeration.PaymentStatusEnum;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IPaymentService {
 
-    Payment createPayment(PaymentFormDto paymentFormDto);
+    String createPayment(PaymentFormDto paymentFormDto);
 
-    Optional<Payment> getPaymentById(Long id);
+    PaymentDto getPaymentById(Long id) throws EntityNotFoundException;
 
-    List<Payment> getAllPayments();
+    List<PaymentDto> getAllPayments();
 
-    List<Payment> filterPayments(String code, String document, PaymentStatusEnum paymentStatus);
+    List<PaymentDto> filterPayments(String code, String document, PaymentStatusEnum paymentStatus);
 
-    void updatePaymentStatus(Long id, PaymentStatusEnum newStatus);
+    String updatePaymentStatus(Long id, PaymentStatusEnum newStatus);
 
-    boolean deletePayment(Long id);
+    String deletePayment(Long id);
 }
