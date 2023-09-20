@@ -3,6 +3,7 @@ package com.fadesppagamentos.services;
 import com.fadesppagamentos.domain.payment.Payment;
 import com.fadesppagamentos.dtos.PaymentDto;
 import com.fadesppagamentos.dtos.PaymentFormDto;
+import com.fadesppagamentos.enumeration.PaymentMethodEnum;
 import com.fadesppagamentos.enumeration.PaymentStatusEnum;
 import com.fadesppagamentos.repositories.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +30,8 @@ public class PaymentService implements IPaymentService {
         if (existingPayment.isPresent()) {
             throw new DataIntegrityViolationException("Pagamento já processado ou em processamento");
         }
+
+        verifyCardNumber(paymentFormDto);
 
         Payment payment = new Payment();
         payment.setCode(code);
@@ -107,4 +110,18 @@ public class PaymentService implements IPaymentService {
         return "Pagamento deletado com sucesso!";
     }
 
+    public void verifyCardNumber(PaymentFormDto paymentFormDto) {
+        PaymentMethodEnum paymentMethod = paymentFormDto.getPaymentMethod();
+        String cardNumber = paymentFormDto.getCardNumber();
+
+        if ((PaymentMethodEnum.CARTAO_CREDITO.equals(paymentMethod) || PaymentMethodEnum.CARTAO_DEBITO.equals(paymentMethod))
+                && cardNumber == null) {
+            throw new DataIntegrityViolationException("O número do cartão é obrigatório para pagamentos com cartão de crédito ou débito.");
+        }
+
+        if (!(PaymentMethodEnum.CARTAO_CREDITO.equals(paymentMethod) || PaymentMethodEnum.CARTAO_DEBITO.equals(paymentMethod))
+                && cardNumber != null) {
+            throw new DataIntegrityViolationException("O número do cartão deve ser utilizado para pagamentos com cartão de crédito ou débito.");
+        }
+    }
 }
