@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "681b9555-ef0f-446f-a35d-f609afde408b",
+		"name": "DESAFIO PICPAY",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16161610"
+	},
+	"item": [
+		{
+			"name": "Criar pagamento",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"31231222\",\r\n    \"documentType\": \"CPF\",\r\n    \"document\": \"02221261200\",\r\n    // \"cardNumber\": \"1234124123\",\r\n    \"paymentMethod\": \"CARTAO_CREDITO\",\r\n    \"amount\": \"300\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/payments/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payments",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pagamento por id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payments/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payments",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Todos os pagamentos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payments/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payments",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Busca com filtros",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payments/filter?document=02221261200",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payments",
+						"filter"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "123123123",
+							"disabled": true
+						},
+						{
+							"key": "document",
+							"value": "02221261200"
+						},
+						{
+							"key": "paymentStatus",
+							"value": "PENDENTE_PROCESSAMENTO",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar um pagamento",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payments/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payments",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar pagamento",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payments/:id/status?newStatus=PROCESSADO_SUCESSO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payments",
+						":id",
+						"status"
+					],
+					"query": [
+						{
+							"key": "newStatus",
+							"value": "PROCESSADO_SUCESSO",
+							"description": "PENDENTE_PROCESSAMENTO, PROCESSADO_FALHA"
+						}
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
